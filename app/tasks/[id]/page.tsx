@@ -6,6 +6,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ArrowLeft, Edit2, Check, Trash2, X, Calendar, Clock } from "lucide-react";
 
 interface Task {
@@ -303,14 +314,29 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
                     <Check className="h-4 w-4 mr-2" />
                     {task.status === "to-do" ? "Start" : task.status === "doing" ? "Finish" : "Reset"}
                   </Button>
-                  <Button
-                    onClick={handleDelete}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete task</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this task? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </>
               )}
             </div>

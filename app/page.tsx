@@ -15,6 +15,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus } from "lucide-react";
 
 interface Task {
@@ -41,6 +51,7 @@ export default function Home() {
   const [newTimeEnd, setNewTimeEnd] = useState("");
   const [newStatus, setNewStatus] = useState("to-do");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -116,7 +127,7 @@ export default function Home() {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-3xl font-bold">To-Do List</h1>
-          <Button variant="outline" onClick={handleLogout}>
+          <Button variant="outline" onClick={() => setShowLogoutDialog(true)}>
             Log out
           </Button>
         </div>
@@ -234,6 +245,21 @@ export default function Home() {
           )}
         </div>
       </main>
+
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to log out?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout}>Log out</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -2,6 +2,17 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Eye, Check, Trash2, Calendar, Clock } from "lucide-react";
 
 interface TaskCardProps {
@@ -100,14 +111,29 @@ export default function TaskCard({
           <Check className="h-4 w-4 mr-1" />
           {status === "to-do" ? "Start" : status === "doing" ? "Finish" : "Reset"}
         </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => onDelete(id)}
-        >
-          <Trash2 className="h-4 w-4 mr-1" />
-          Delete
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="sm"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete task</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this task? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onDelete(id)}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
