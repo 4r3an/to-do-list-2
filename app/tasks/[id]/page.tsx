@@ -48,6 +48,12 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
   const [editStatus, setEditStatus] = useState("");
 
   useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+
     const savedTasks = localStorage.getItem("tasks");
     if (savedTasks) {
       const tasks: Task[] = JSON.parse(savedTasks);
@@ -63,7 +69,7 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
         setEditStatus(foundTask.status || "to-do");
       }
     }
-  }, [id]);
+  }, [id, router]);
 
   const handleSaveEdit = () => {
     const savedTasks = localStorage.getItem("tasks");
