@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Dialog,
   DialogContent,
@@ -122,14 +123,23 @@ export default function Home() {
     router.push("/login");
   };
 
+  const handleUserPage = () => {
+    router.push("/users");
+  }
+
   return (
     <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-3xl font-bold">To-Do List</h1>
-          <Button variant="outline" onClick={() => setShowLogoutDialog(true)}>
-            Log out
-          </Button>
+          <ButtonGroup>
+            <Button variant="outline" onClick={() => handleUserPage()}>
+              User
+            </Button>
+            <Button onClick={() => setShowLogoutDialog(true)}>
+              Log out
+            </Button>
+          </ButtonGroup>
         </div>
 
         <div className="mb-6">
