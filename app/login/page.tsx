@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff,  } from "lucide-react";
+
 
 export default function Login() {
   const router = useRouter();
@@ -14,14 +15,36 @@ export default function Login() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  console.log(email, password);
+
   const handleLogin = () => {
     if (email === "test_todo@test.com" && password === "123456789") {
-      localStorage.setItem("isLoggedIn", "true");
+      // localStorage.setItem("isLoggedIn", "true");
       router.push("/");
     } else {
       setError("Username or password is incorrect");
     }
   };
+
+  console.log(email, password)
+
+  const handleSubmit = (e : React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    const checkEmail = "test_todo@test.com"
+    const checkPassword = "123456789"
+
+    if (email === checkEmail && password === checkPassword) {
+      localStorage.setItem("isLoggedIn", "true");
+      router.push("/");
+    } else {
+      setError("Username or password is incorrect");
+    }
+  }
 
   const handleForgotPassword = () => {
     console.log("Forgot password clicked");
@@ -36,17 +59,19 @@ export default function Login() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
+            <form onSubmit={handleSubmit}>
+              <div>
               <label className="text-sm font-medium mb-1.5 block">Email</label>
               <Input
                 type="email"
                 placeholder="email@example.com"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
-                onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                // value={email}
+                name="email"
+                // onChange={(e) => {
+                //   setEmail(e.target.value);
+                //   setError("");
+                // }}
+                // onKeyPress={(e) => e.key === "Enter" && handleLogin()}
               />
             </div>
             <div>
@@ -55,12 +80,13 @@ export default function Login() {
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError("");
-                  }}
-                  onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                  // value={password}
+                  name="password"
+                  // onChange={(e) => {
+                  //   setPassword(e.target.value);
+                  //   setError("");
+                  // }}
+                  // onKeyPress={(e) => e.key === "Enter" && handleLogin()}
                   className="pr-10"
                 />
                 <button
@@ -76,6 +102,7 @@ export default function Login() {
                 </button>
               </div>
             </div>
+            </form>
             {error && (
               <p className="text-sm text-destructive">{error}</p>
             )}
