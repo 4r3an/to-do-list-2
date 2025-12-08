@@ -57,6 +57,9 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
   const [editTimeStart, setEditTimeStart] = useState("");
   const [editTimeEnd, setEditTimeEnd] = useState("");
   const [editStatus, setEditStatus] = useState("");
+  const [editTitleError, setEditTitleError] = useState("");
+  const [editDateError, setEditDateError] = useState("");
+  const [editTimeError, setEditTimeError] = useState("");
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -82,7 +85,60 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
     }
   }, [id, router]);
 
+  const validateEditForm = (): boolean => {
+    let isValid = true;
+
+    // Validate title
+    if (!editTitle || !editTitle.trim()) {
+      setEditTitleError("Title is required");
+      isValid = false;
+    } else if (editTitle.trim().length < 3) {
+      setEditTitleError("Title must be at least 3 characters");
+      isValid = false;
+    } else {
+      setEditTitleError("");
+    }
+
+    // Validate dates
+    if (editDateStart && editDateEnd) {
+      const startDate = new Date(editDateStart);
+      const endDate = new Date(editDateEnd);
+      if (endDate < startDate) {
+        setEditDateError("End date must be after start date");
+        isValid = false;
+      } else {
+        setEditDateError("");
+      }
+    } else {
+      setEditDateError("");
+    }
+
+    // Validate times (only if dates are the same)
+    if (editDateStart && editDateEnd && editTimeStart && editTimeEnd) {
+      if (editDateStart === editDateEnd) {
+        const startTime = new Date(`2000-01-01T${editTimeStart}`);
+        const endTime = new Date(`2000-01-01T${editTimeEnd}`);
+        if (endTime <= startTime) {
+          setEditTimeError("End time must be after start time");
+          isValid = false;
+        } else {
+          setEditTimeError("");
+        }
+      } else {
+        setEditTimeError("");
+      }
+    } else {
+      setEditTimeError("");
+    }
+
+    return isValid;
+  };
+
   const handleSaveEdit = () => {
+    if (!validateEditForm()) {
+      return;
+    }
+
     const savedTasks = localStorage.getItem("tasks");
     if (savedTasks && task) {
       const tasks: Task[] = JSON.parse(savedTasks);
@@ -111,6 +167,9 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
         time_end: editTimeEnd,
         status: editStatus
       });
+      setEditTitleError("");
+      setEditDateError("");
+      setEditTimeError("");
       setIsEditing(false);
     }
   };
@@ -183,11 +242,19 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
         <Card>
           <CardHeader>
             {isEditing ? (
-              <Input
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="text-2xl font-bold"
-              />
+              <div>
+                <Input
+                  value={editTitle}
+                  onChange={(e) => {
+                    setEditTitle(e.target.value);
+                    setEditTitleError("");
+                  }}
+                  className={`text-2xl font-bold ${editTitleError ? "border-destructive" : ""}`}
+                />
+                {editTitleError && (
+                  <p className="text-sm text-destructive mt-1">{editTitleError}</p>
+                )}
+              </div>
             ) : (
               <CardTitle className={task.completed ? "line-through" : ""}>
                 {task.title}
@@ -214,26 +281,48 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
                   <Input
                     type="date"
                     value={editDateStart}
-                    onChange={(e) => setEditDateStart(e.target.value)}
+                    onChange={(e) => {
+                      setEditDateStart(e.target.value);
+                      setEditDateError("");
+                    }}
+                    className={editDateError ? "border-destructive" : ""}
                   />
                   <Input
                     type="date"
                     value={editDateEnd}
-                    onChange={(e) => setEditDateEnd(e.target.value)}
+                    onChange={(e) => {
+                      setEditDateEnd(e.target.value);
+                      setEditDateError("");
+                    }}
+                    className={editDateError ? "border-destructive" : ""}
                   />
                 </div>
+                {editDateError && (
+                  <p className="text-sm text-destructive">{editDateError}</p>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   <Input
                     type="time"
                     value={editTimeStart}
-                    onChange={(e) => setEditTimeStart(e.target.value)}
+                    onChange={(e) => {
+                      setEditTimeStart(e.target.value);
+                      setEditTimeError("");
+                    }}
+                    className={editTimeError ? "border-destructive" : ""}
                   />
                   <Input
                     type="time"
                     value={editTimeEnd}
-                    onChange={(e) => setEditTimeEnd(e.target.value)}
+                    onChange={(e) => {
+                      setEditTimeEnd(e.target.value);
+                      setEditTimeError("");
+                    }}
+                    className={editTimeError ? "border-destructive" : ""}
                   />
                 </div>
+                {editTimeError && (
+                  <p className="text-sm text-destructive">{editTimeError}</p>
+                )}
                 <select
                   value={editStatus}
                   onChange={(e) => setEditStatus(e.target.value)}
@@ -288,6 +377,9 @@ export default function TaskDetail({ params }: { params: Promise<{ id: string }>
                       setEditTimeStart(task.time_start || "");
                       setEditTimeEnd(task.time_end || "");
                       setEditStatus(task.status || "to-do");
+                      setEditTitleError("");
+                      setEditDateError("");
+                      setEditTimeError("");
                     }}
                     variant="outline"
                     className="flex-1"

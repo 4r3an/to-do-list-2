@@ -53,6 +53,9 @@ export default function Home() {
   const [newStatus, setNewStatus] = useState("to-do");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [titleError, setTitleError] = useState("");
+  const [dateError, setDateError] = useState("");
+  const [timeError, setTimeError] = useState("");
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -68,8 +71,59 @@ export default function Home() {
   }, [router]);
 
 
+  const validateTaskForm = (): boolean => {
+    let isValid = true;
+
+    // Validate title
+    if (!newTitle || !newTitle.trim()) {
+      setTitleError("Title is required");
+      isValid = false;
+    } else if (newTitle.trim().length < 3) {
+      setTitleError("Title must be at least 3 characters");
+      isValid = false;
+    } else {
+      setTitleError("");
+    }
+
+    // Validate dates
+    if (newDateStart && newDateEnd) {
+      const startDate = new Date(newDateStart);
+      const endDate = new Date(newDateEnd);
+      if (endDate < startDate) {
+        setDateError("End date must be after start date");
+        isValid = false;
+      } else {
+        setDateError("");
+      }
+    } else {
+      setDateError("");
+    }
+
+    // Validate times (only if dates are the same)
+    if (newDateStart && newDateEnd && newTimeStart && newTimeEnd) {
+      if (newDateStart === newDateEnd) {
+        const startTime = new Date(`2000-01-01T${newTimeStart}`);
+        const endTime = new Date(`2000-01-01T${newTimeEnd}`);
+        if (endTime <= startTime) {
+          setTimeError("End time must be after start time");
+          isValid = false;
+        } else {
+          setTimeError("");
+        }
+      } else {
+        setTimeError("");
+      }
+    } else {
+      setTimeError("");
+    }
+
+    return isValid;
+  };
+
   const handleAddTask = () => {
-    if (!newTitle.trim()) return;
+    if (!validateTaskForm()) {
+      return;
+    }
 
     const newTask: Task = {
       id: Date.now().toString(),
@@ -95,6 +149,9 @@ export default function Home() {
     setNewTimeStart("");
     setNewTimeEnd("");
     setNewStatus("to-do");
+    setTitleError("");
+    setDateError("");
+    setTimeError("");
     setIsDialogOpen(false);
   };
 
@@ -162,8 +219,15 @@ export default function Home() {
                   <Input
                     placeholder="Task title"
                     value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
+                    onChange={(e) => {
+                      setNewTitle(e.target.value);
+                      setTitleError("");
+                    }}
+                    className={titleError ? "border-destructive" : ""}
                   />
+                  {titleError && (
+                    <p className="text-sm text-destructive mt-1">{titleError}</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">Description</label>
@@ -179,7 +243,11 @@ export default function Home() {
                     <Input
                       type="date"
                       value={newDateStart}
-                      onChange={(e) => setNewDateStart(e.target.value)}
+                      onChange={(e) => {
+                        setNewDateStart(e.target.value);
+                        setDateError("");
+                      }}
+                      className={dateError ? "border-destructive" : ""}
                     />
                   </div>
                   <div>
@@ -187,17 +255,28 @@ export default function Home() {
                     <Input
                       type="date"
                       value={newDateEnd}
-                      onChange={(e) => setNewDateEnd(e.target.value)}
+                      onChange={(e) => {
+                        setNewDateEnd(e.target.value);
+                        setDateError("");
+                      }}
+                      className={dateError ? "border-destructive" : ""}
                     />
                   </div>
                 </div>
+                {dateError && (
+                  <p className="text-sm text-destructive">{dateError}</p>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Time Start</label>
                     <Input
                       type="time"
                       value={newTimeStart}
-                      onChange={(e) => setNewTimeStart(e.target.value)}
+                      onChange={(e) => {
+                        setNewTimeStart(e.target.value);
+                        setTimeError("");
+                      }}
+                      className={timeError ? "border-destructive" : ""}
                     />
                   </div>
                   <div>
@@ -205,10 +284,17 @@ export default function Home() {
                     <Input
                       type="time"
                       value={newTimeEnd}
-                      onChange={(e) => setNewTimeEnd(e.target.value)}
+                      onChange={(e) => {
+                        setNewTimeEnd(e.target.value);
+                        setTimeError("");
+                      }}
+                      className={timeError ? "border-destructive" : ""}
                     />
                   </div>
                 </div>
+                {timeError && (
+                  <p className="text-sm text-destructive">{timeError}</p>
+                )}
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">Status</label>
                   <select
