@@ -67,9 +67,6 @@ export default function Home() {
     }
   }, [router]);
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
 
   const handleAddTask = () => {
     if (!newTitle.trim()) return;
@@ -87,7 +84,10 @@ export default function Home() {
       createdAt: new Date().toISOString(),
     };
 
-    setTasks([newTask, ...tasks]);
+    const updatedTasks = [newTask, ...tasks];
+    setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
     setNewTitle("");
     setNewDescription("");
     setNewDateStart("");
@@ -99,23 +99,25 @@ export default function Home() {
   };
 
   const handleDeleteTask = (id: string) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
   const handleToggleComplete = (id: string) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, completed: !task.completed } : task
     );
+    setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
   const handleStatusChange = (id: string, newStatus: string) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, status: newStatus } : task
-      )
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, status: newStatus } : task
     );
+    setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
   const handleLogout = () => {
@@ -125,7 +127,7 @@ export default function Home() {
 
   const handleUserPage = () => {
     router.push("/users");
-  }
+  };
 
   return (
     <div className="min-h-screen">
