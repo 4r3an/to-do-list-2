@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 const axios = require('axios');
 
@@ -16,20 +17,38 @@ interface UserData {
 }
 
 export default function UsersPage() {
-    const [users, setUsers] = useState<UserData[]>([]);
     const router = useRouter();
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const UserData = await axios.get('https://jsonplaceholder.typicode.com/users');
-            setUsers(UserData.data);
-            console.log(UserData.data);
-        };
-        fetchUsers();
-    },[]);
+    // Fetch users using TanStack Query
+    const { data: users = [], isLoading, error } = useQuery({
+        queryKey: ['users'],
+        queryFn: async () => {
+            const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+            return response.data;
+        }
+    });
+
+    // Old axios implementation (commented out)
+    // const [users, setUsers] = useState<UserData[]>([]);
+    // useEffect(() => {
+    //     const fetchUsers = async () => {
+    //         const UserData = await axios.get('https://jsonplaceholder.typicode.com/users');
+    //         setUsers(UserData.data);
+    //         console.log(UserData.data);
+    //     };
+    //     fetchUsers();
+    // },[]);
 
     const handleBackTasks = () => {
         router.push("/");
+    }
+
+    if (isLoading) {
+        return <div className="text-center p-4">Loading users...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center p-4 text-red-500">Error loading users</div>;
     }
     
     return (
@@ -41,8 +60,8 @@ export default function UsersPage() {
             <Card>
             <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {users.map((user) => (
-                    <div key={user.id} className="mb-4 p-4 border rounded-lg shadow-sm">
+                    {users.map((user: UserData) => (
+                     <div key={user.id} className="mb-4 p-4 border rounded-lg shadow-sm">
                         <CardTitle className="flex items-center">Name : {user.name}</CardTitle>
                         <CardDescription className="flex items-center">Username : {user.username}</CardDescription>
                         <CardDescription className="flex items-center">Email : {user.email}</CardDescription>
